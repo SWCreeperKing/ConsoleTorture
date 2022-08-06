@@ -45,12 +45,6 @@ public class PInvoke
     {
         public short X;
         public short Y;
-
-        public Coord(short X, short Y)
-        {
-            this.X = X;
-            this.Y = Y;
-        }
     };
 
     [StructLayout(LayoutKind.Explicit)]

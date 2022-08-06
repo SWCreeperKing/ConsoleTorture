@@ -13,7 +13,22 @@ public class ConsoleManager
     private static bool _started;
     private static CharInfo[] _buffer;
     private static SmallRect _consoleBounds;
+    private static List<Action<ConsoleKeyInfo>> _detectInput = new();
+    private static List<Action<double>> _updateList = new();
+    private static List<Action> _renderList = new();
 
+    public event Action<double> Update
+    {
+        add => _updateList.Add(value);
+        remove => _updateList.Remove(value);
+    } 
+    
+    public event Action Render
+    {
+        add => _renderList.Add(value);
+        remove => _renderList.Remove(value);
+    }
+    
     private static void ConsoleSetup(short width, short height)
     {
         // capability test
@@ -59,6 +74,7 @@ public class ConsoleManager
                 var key = Console.ReadKey(true);
                 if (key.Key is ConsoleKey.Escape) Environment.Exit(0);
                 if (key.Key is ConsoleKey.F3) showFps = !showFps;
+                _detectInput.ForEach(detect => detect.Invoke(key));
             }
         });
     }
@@ -87,9 +103,9 @@ public class ConsoleManager
         var firstSlot = true;
         var frameSet = new int[2];
         var timeSet = new float[2];
-
+        
         void UpdateFrameTime(float dt)
-        {
+        { // there is probs a far better method :p
             var i = firstSlot ? 0 : 1;
             frameSet[i]++;
             timeSet[i] += dt;
